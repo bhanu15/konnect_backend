@@ -11,6 +11,15 @@ class Settings:
         self.APP_NAME = cfg.get("app_name")
         self.LOG_LEVEL = cfg.get("log_level", "INFO")
         self.DATABASE_URL = cfg["database_url"]
+        
+        # S3 settings
+        self.S3_BUCKET = cfg["s3"]["bucket"]
+        self.S3_REGION = cfg["s3"]["region"]
+        self.S3_ACCESS_KEY = cfg["s3"]["access_key"]
+        self.S3_SECRET_KEY = cfg["s3"]["secret_key"]
+        
+        self.ALLOWED_CONTENT_TYPES = cfg.get("allowed_content_types", ["image/jpeg", "image/png", "image/webp"])
+        self.MAX_UPLOAD_SIZE_BYTES = cfg.get("max_upload_size_bytes", 10 * 1024 * 1024)
 
     def _load_yaml(self, path: str):
         file_path = Path(path)
