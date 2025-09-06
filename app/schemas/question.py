@@ -1,19 +1,26 @@
 from pydantic import BaseModel
-from datetime import datetime
 from typing import Optional
+from datetime import datetime
 
-class QuestionBase(BaseModel):
-    user_email: str
-    question: str
+# --------- Request Schemas ---------
+class QuestionCreate(BaseModel):
+    question_text: str
+    asked_by: str
+
+class QuestionUpdate(BaseModel):
+    question_text: Optional[str] = None
     answer: Optional[str] = None
-    answered_by_email: Optional[str] = None
-    asked_at: Optional[datetime] = None
-    answered_at: Optional[datetime] = None
+    # 🚫 answered_by / answered_at controlled by service only
 
-class QuestionCreate(QuestionBase):
-    pass
-
-class QuestionResponse(QuestionBase):
+# --------- Response Schema ---------
+class QuestionResponse(BaseModel):
     id: int
+    question_text: str
+    asked_by: str
+    asked_at: datetime
+    answer: Optional[str]
+    answered_by: Optional[str]
+    answered_at: Optional[datetime]
+
     class Config:
         orm_mode = True

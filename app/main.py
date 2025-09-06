@@ -10,10 +10,8 @@ def create_app() -> FastAPI:
     configure_logging(settings.LOG_LEVEL)
     app = FastAPI(title=settings.APP_NAME or "FastAPI Application")
     app.add_middleware(RequestLoggingMiddleware)
-    # app.include_router(items.router, prefix="/api/v1")
     app.include_router(feature_toggle_routes.router, prefix="/api/v1")
     app.include_router(question_routes.router, prefix="/api/v1")
-    # app.include_router(buzz_routes.router, prefix="/api/v1")
     app.include_router(buzz_image_router.router, prefix="/api/v1")
 
     @app.on_event("startup")

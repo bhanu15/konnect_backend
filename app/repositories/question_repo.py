@@ -1,36 +1,52 @@
 from sqlalchemy.orm import Session
-from datetime import datetime
+from typing import List, Optional
 from app.models.question import ExpertQuestion
-from app.schemas.question import QuestionCreate
+from app.schemas.question import QuestionCreate, QuestionUpdate
 
-class ExpertQuestionRepository:
-    @staticmethod
-    def create_question(db: Session, q: QuestionCreate):
-        db_q = ExpertQuestion(
-            user_email=q.user_email,
-            question=q.question,
-            answer=q.answer,
-            answered_by_email=q.answered_by_email,
-            asked_at=datetime.utcnow(),
-            # answered_at=datetime.utcnow() if q.answer else None
+class QuestionRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    # --------- Create ----------
+    def create(self, q: QuestionCreate) -> ExpertQuestion:
+        new_q = ExpertQuestion(
+            question_text=q.question_text,
+            asked_by=q.asked_by
         )
-        db.add(db_q)
-        db.commit()
-        db.refresh(db_q)
-        return db_q
+        self.db.add(new_q)
+        self.db.commit()
+        self.db.refresh(new_q)
+        return new_q
 
-    @staticmethod
-    def get_question(db: Session, question_id: int):
-        return db.query(ExpertQuestion).filter(ExpertQuestion.id == question_id).first()
+    # --------- Read ----------
+    def get(self, question_id: int) -> Optional[ExpertQuestion]:
+        return self.db.query(ExpertQuestion).filter(ExpertQuestion.id == question_id).first()
 
-    @staticmethod
-    def list_questions(db: Session, skip: int = 0, limit: int = 100):
-        return db.query(ExpertQuestion).offset(skip).limit(limit).all()
+    def list(self, skip: int = 0, limit: int = 100) -> List[ExpertQuestion]:
+        return self.db.query(ExpertQuestion).offset(skip).limit(limit).all()
 
-    @staticmethod
-    def list_questions_by_email(db: Session, user_email: str, skip: int = 0, limit: int = 100):
-        return db.query(ExpertQuestion).filter(ExpertQuestion.user_email == user_email).offset(skip).limit(limit).all()
+    def list_by_user(self, user_email: str, skip: int = 0, limit: int = 100) -> List[ExpertQuestion]:
+        return (
+            self.db.query(ExpertQuestion)
+            .filter(ExpertQuestion.asked_by == user_email)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-    @staticmethod
-    def list_questions_by_answered_email(db: Session, answered_by_email: str, skip: int = 0, limit: int = 100):
-        return db.query(ExpertQuestion).filter(ExpertQuestion.answered_by_email == answered_by_email).offset(skip).limit(limit).all()
+    def list_by_answered(self, answered_by_email: str, skip: int = 0, limit: int = 100) -> List[ExpertQuestion]:
+        return (
+            self.db.query(ExpertQuestion)
+            .filter(ExpertQuestion.answered_by == answered_by_email)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+    # --------- Update ----------
+    def update(self, question: ExpertQuestion, update_data: dict) -> ExpertQuestion:
+        for key, value in update_data.items():
+            setattr(question, key, value)
+        self.db.commit()
+        self.db.refresh(question)
+        return question
