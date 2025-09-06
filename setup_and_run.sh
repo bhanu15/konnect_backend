@@ -21,7 +21,8 @@ source venv/bin/activate
 # Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install gunicorn
+# pip install gunicorn
+pip install "pydantic[email]" fastapi uvicorn[standard] sqlalchemy psycopg2-binary python-dotenv gunicorn
 
 # Set environment
 export ENV=$ENVIRONMENT
