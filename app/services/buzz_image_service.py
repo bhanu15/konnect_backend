@@ -52,7 +52,7 @@ class BuzzImageService:
     @staticmethod
     def get_image_by_id(db: Session, image_id: int):
         img = BuzzImageRepository.get(db, image_id)
-        if not img or img.is_deleted.is_(True):
+        if not img:
             raise HTTPException(status_code=404, detail="Image not found")
         return img
 
@@ -63,7 +63,7 @@ class BuzzImageService:
     @staticmethod
     def update_image(db: Session, image_id: int, title: str | None = None, description: str | None = None):
         img = BuzzImageRepository.get(db, image_id)
-        if not img or img.is_deleted.is_(True):
+        if not img:
             raise HTTPException(status_code=404, detail="Image not found")
         return BuzzImageRepository.update(
             db,
@@ -75,6 +75,6 @@ class BuzzImageService:
     @staticmethod
     def delete_image(db: Session, image_id: int):
         img = BuzzImageRepository.get(db, image_id)
-        if not img or img.is_deleted.is_(True):
+        if not img:
             raise HTTPException(status_code=404, detail="Image not found")
         return BuzzImageRepository.soft_delete(db, img)
