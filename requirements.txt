@@ -7,4 +7,5 @@ pyyaml>=6.0
 python-multipart==0.0.9
 boto3>=1.30.0
 requests==2.32.1
+# pydantic[email]==2.6.3
 
