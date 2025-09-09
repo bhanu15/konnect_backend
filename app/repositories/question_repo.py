@@ -23,7 +23,13 @@ class QuestionRepository:
         return self.db.query(ExpertQuestion).filter(ExpertQuestion.id == question_id).first()
 
     def list(self, skip: int = 0, limit: int = 100) -> List[ExpertQuestion]:
-        return self.db.query(ExpertQuestion).offset(skip).limit(limit).all()
+        return (
+            self.db.query(ExpertQuestion)
+            .order_by(ExpertQuestion.asked_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
     def list_by_user(self, user_email: str, skip: int = 0, limit: int = 100) -> List[ExpertQuestion]:
         return (
@@ -39,7 +45,7 @@ class QuestionRepository:
         return (
             self.db.query(ExpertQuestion)
             .filter(ExpertQuestion.answered_by == answered_by_email)
-            .order_by(ExpertQuestion.answered_at.desc())
+            .order_by(ExpertQuestion.asked_at.desc())
             .offset(skip)
             .limit(limit)
             .all()
