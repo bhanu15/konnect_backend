@@ -29,6 +29,7 @@ class QuestionRepository:
         return (
             self.db.query(ExpertQuestion)
             .filter(ExpertQuestion.asked_by == user_email)
+            .order_by(ExpertQuestion.asked_at.desc())
             .offset(skip)
             .limit(limit)
             .all()
@@ -38,6 +39,7 @@ class QuestionRepository:
         return (
             self.db.query(ExpertQuestion)
             .filter(ExpertQuestion.answered_by == answered_by_email)
+            .order_by(ExpertQuestion.answered_at.desc())
             .offset(skip)
             .limit(limit)
             .all()

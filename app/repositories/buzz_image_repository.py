@@ -22,6 +22,7 @@ class BuzzImageRepository:
         return (
             db.query(BuzzImage)
             .filter(BuzzImage.is_deleted.is_(False))
+            .order_by(BuzzImage.created_at.desc()) 
             .offset(skip)
             .limit(limit)
             .all()
