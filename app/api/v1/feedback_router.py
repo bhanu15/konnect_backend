@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, File, UploadFile, Form, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app.api.v1.deps import get_session
 from app.services.feedback_service import FeedbackService
 from app.schemas.feedback_schema import FeedbackCreate, FeedbackUpdate, FeedbackResponse
-
+from app.api.v1.deps import get_session
 
 router = APIRouter(prefix="/feedbacks", tags=["feedback"])
 
@@ -25,7 +24,6 @@ def create_feedback(
     )
     return FeedbackService.create_feedback(db, feedback_data, file)
 
-
 @router.get("/", response_model=List[FeedbackResponse])
 def list_feedbacks(
     skip: int = 0,
@@ -33,16 +31,11 @@ def list_feedbacks(
     feedback_reply: Optional[bool] = Query(None),
     db: Session = Depends(get_session)
 ):
-    feedbacks = FeedbackService.list_feedbacks(db, skip, limit)
-    if feedback_reply is not None:
-        feedbacks = [f for f in feedbacks if f.feedback_reply == feedback_reply]
-    return feedbacks
-
+    return FeedbackService.list_feedbacks(db, skip, limit, feedback_reply)
 
 @router.get("/{feedback_id}", response_model=FeedbackResponse)
 def get_feedback(feedback_id: int, db: Session = Depends(get_session)):
     return FeedbackService.get_feedback_by_id(db, feedback_id)
-
 
 @router.put("/{feedback_id}", response_model=FeedbackResponse)
 def update_feedback(
@@ -60,26 +53,23 @@ def update_feedback(
     )
     return FeedbackService.update_feedback(db, feedback_id, feedback_update, file)
 
-
 @router.delete("/{feedback_id}")
 def delete_feedback(feedback_id: int, db: Session = Depends(get_session)):
     return FeedbackService.delete_feedback(db, feedback_id)
-
 
 @router.post("/{feedback_id}/reply", response_model=FeedbackResponse)
 def mark_as_replied(feedback_id: int, db: Session = Depends(get_session)):
     return FeedbackService.mark_as_replied(db, feedback_id)
 
-
-# @router.get("/search/", response_model=List[FeedbackResponse])
-# def search_feedbacks_by_email(
-#     email: str = Query(..., description="Email to search feedbacks"),
-#     skip: int = 0,
-#     limit: int = 100,
-#     feedback_reply: Optional[bool] = Query(None, description="Filter by feedback reply status"),
-#     db: Session = Depends(get_session)
-# ):
-#     feedbacks = FeedbackService.search_feedbacks_by_email(db, email, skip, limit)
-#     if feedback_reply is not None:
-#         feedbacks = [f for f in feedbacks if f.feedback_reply == feedback_reply]
-#     return feedbacks
+@router.get("/search/", response_model=List[FeedbackResponse])
+def search_feedbacks_by_email(
+    email: str = Query(..., description="Partial email to search feedbacks"),
+    skip: int = 0,
+    limit: int = 100,
+    feedback_reply: Optional[bool] = Query(None, description="Filter by feedback reply status"),
+    db: Session = Depends(get_session)
+):
+    """
+    Search feedbacks by partial email match (LIKE) with optional feedback_reply filter.
+    """
+    return FeedbackService.search_feedbacks_by_email(db, email, skip, limit, feedback_reply)

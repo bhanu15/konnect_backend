@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
-from typing import Optional, List
+from typing import List, Optional
 from app.models.feedback import Feedback
 from app.schemas.feedback_schema import FeedbackCreate, FeedbackUpdate
-
 
 class FeedbackRepository:
 
@@ -36,9 +35,15 @@ class FeedbackRepository:
         return query.offset(skip).limit(limit).all()
 
     @staticmethod
-    def search_by_email(db: Session, email: str, skip: int = 0, limit: int = 100, feedback_reply: Optional[bool] = None) -> List[Feedback]:
+    def search_by_email(
+        db: Session,
+        email: str,
+        skip: int = 0,
+        limit: int = 100,
+        feedback_reply: Optional[bool] = None
+    ) -> List[Feedback]:
         query = db.query(Feedback).filter(
-            Feedback.user_email == email,
+            Feedback.user_email.ilike(f"%{email}%"),
             Feedback.is_deleted.is_(False)
         )
         if feedback_reply is not None:
