@@ -51,7 +51,7 @@ class FeedbackService:
         feedback = FeedbackRepository.update(db, feedback_id, feedback_update, file_url)
         if not feedback:
             raise HTTPException(status_code=404, detail="Feedback not found")
-        return feedback
+        return feedback 
 
     @staticmethod
     def delete_feedback(db: Session, feedback_id: int):

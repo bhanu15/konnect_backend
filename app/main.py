@@ -33,16 +33,18 @@ def create_app() -> FastAPI:
     app.include_router(feedback_router.router, prefix="/api/v1")
     app.include_router(business_card_router.router, prefix="/api/v1")
     
+    @app.on_event("startup")
+    def on_startup():
+        if settings.DATABASE_URL:  # Only auto-create in dev/test
+            create_db_and_tables()
+    
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
         errors = [{"field": ".".join(str(loc) for loc in err.get("loc", [])), "message": err.get("msg")}
               for err in exc.errors()]
         return JSONResponse(status_code=422, content={"detail": errors})
 
-    @app.on_event("startup")
-    def on_startup():
-        if settings.DATABASE_URL:  # Only auto-create in dev/test
-            create_db_and_tables()
+    
 
     return app
 
