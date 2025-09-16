@@ -7,7 +7,7 @@ from app.core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
 from app.logger import configure_logging
 from app.middleware import RequestLoggingMiddleware
-from app.api.v1 import items, feature_toggle_routes, question_routes, buzz_image_router, business_routes, user_router, feedback_router, business_card_router
+from app.api.v1 import items, feature_toggle_routes, question_routes, buzz_image_router, business_routes, user_router, feedback_router, business_card_router, assistant_router, search_router
 
 from app.db.session import create_db_and_tables
 
@@ -32,6 +32,8 @@ def create_app() -> FastAPI:
     app.include_router(user_router.router, prefix="/api/v1")
     app.include_router(feedback_router.router, prefix="/api/v1")
     app.include_router(business_card_router.router, prefix="/api/v1")
+    app.include_router(assistant_router.router, prefix="/api/v1")
+    app.include_router(search_router.router, prefix="/api/v1")
     
     @app.on_event("startup")
     def on_startup():

@@ -17,9 +17,15 @@ class Settings:
         self.S3_REGION = cfg["s3"]["region"]
         self.S3_ACCESS_KEY = cfg["s3"]["access_key"]
         self.S3_SECRET_KEY = cfg["s3"]["secret_key"]
+
+        
+        self.OPENAI_API_KEY = cfg["openai"]["api_key"]
         
         self.ALLOWED_CONTENT_TYPES = cfg.get("allowed_content_types", ["image/jpeg", "image/png", "image/webp"])
         self.MAX_UPLOAD_SIZE_BYTES = cfg.get("max_upload_size_bytes", 10 * 1024 * 1024)
+        
+        self.ASSISTANT_ID = self._load_yaml("config/assistant.yaml").get("assistant_id")
+        self.SYSTEM_PROMPT = self._load_yaml("config/prompt.yaml").get("system_prompt")
 
     def _load_yaml(self, path: str):
         file_path = Path(path)
@@ -27,6 +33,16 @@ class Settings:
             return {}
         with open(file_path, "r") as f:
             return yaml.safe_load(f)
+        
+    def get_prompt(self, key: str = "default_prompt") -> str:
+        path = Path("config/prompt.yaml")
+        if not path.exists():
+            return ""
+        with open(path, "r") as f:
+            data = yaml.safe_load(f) or {}
+        if "prompts" in data:
+            return data["prompts"].get(key, "")
+        return data.get(key, "")
 
 ENV = os.getenv("ENV", "dev")
 settings = Settings(env=ENV)
